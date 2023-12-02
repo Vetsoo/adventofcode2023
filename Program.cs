@@ -74,7 +74,7 @@ class Program
             gameNumber++;
             var strippedString = game[(game.IndexOf(':') + 1)..].TrimStart();
             var rounds = strippedString.Split("; ");
-            var isPossible = true;
+            var isPossible = true;          
             foreach (var round in rounds)
             {
                 var dicesPerRound = round.Split(", ");
@@ -94,5 +94,38 @@ class Program
 
         var sumOfPossibleGames = possibleGames.Sum();
         Console.WriteLine($"Sum of possible games: {sumOfPossibleGames}");
+
+        gameNumber = 0;
+        var gamesPower = new List<int>();
+        await foreach (var game in games)
+        {
+            gameNumber++;
+            var strippedString = game[(game.IndexOf(':') + 1)..].TrimStart();
+            var rounds = strippedString.Split("; ");
+            var minDicesNeededPerColor = new Dictionary<string, int>
+            {
+                {"blue", 0},
+                {"green", 0},
+                {"red", 0}
+            };
+            foreach (var round in rounds)
+            {
+                var dicesPerRound = round.Split(", ");
+                foreach (var dice in dicesPerRound)
+                {
+                    var amountAndColor = dice.Split(' ');
+                    var minDice = minDicesNeededPerColor.First(x => x.Key == amountAndColor[1]);
+                    if (minDice.Value < int.Parse(amountAndColor[0]))
+                    {
+                        minDicesNeededPerColor.Remove(minDice.Key);
+                        minDicesNeededPerColor.Add(minDice.Key, int.Parse(amountAndColor[0]));
+                    }
+                }
+            }
+            gamesPower.Add(minDicesNeededPerColor["red"] * minDicesNeededPerColor["green"] * minDicesNeededPerColor["blue"]);
+        }
+
+        var sumOfPowerOfGames = gamesPower.Sum();
+        Console.WriteLine($"Sum of power of games: {sumOfPowerOfGames}");
     }
 }
